@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NumboMath Control</title>
+
+<style>
+body{
+    margin:0;
+    font-family:monospace;
+    background:#000;
+    color:#00ff99;
+    text-align:center;
+}
+
+header{
+    padding:20px;
+    font-size:28px;
+}
+
+input{
+    padding:10px;
+    margin:5px;
+    background:black;
+    border:1px solid #00ff99;
+    color:#00ff99;
+}
+
+button{
+    padding:10px 20px;
+    margin:10px;
+    border:none;
+    cursor:pointer;
+    background:#00ff99;
+    color:black;
+    font-weight:bold;
+}
+
+.hidden{display:none;}
+
+.cheat-card{
+    border:1px solid #00ff99;
+    padding:10px;
+    margin:10px auto;
+    width:300px;
+}
+
+.shutdown{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:black;
+    color:red;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    font-size:40px;
+}
+</style>
+</head>
+
+<body>
+
+<header>⚡ NUMBOMATH ADMIN ⚡</header>
+
+<div id="loginBox">
+    <h2>Login</h2>
+    <input id="username" placeholder="Username"><br>
+    <input id="password" type="password" placeholder="Password"><br>
+    <button id="loginBtn">Login</button>
+    <p id="message"></p>
+</div>
+
+<div id="adminPanel" class="hidden">
+    <h2>Cheat Panel</h2>
+    <p>XP: <span id="xp">0</span></p>
+    <button id="addCheatBtn">Add Cheat</button>
+    <button id="logoutBtn">Logout</button>
+    <button id="shutdownBtn">Shutdown</button>
+    <div id="cheats"></div>
+</div>
+
+<div id="shutdownScreen" class="shutdown hidden">
+    🚨 SITE SHUT DOWN 🚨
+    <button id="restoreBtn">Restore</button>
+</div>
+
+<script>
+(function(){
+
+const adminUser = "admin";
+const adminPass = "1337";
+
+let xp = parseInt(localStorage.getItem("xp")) || 0;
+let cheats = JSON.parse(localStorage.getItem("cheats")) || [];
+let loggedIn = localStorage.getItem("loggedIn") === "true";
+let shutdown = localStorage.getItem("shutdown") === "true";
+
+const loginBox = document.getElementById("loginBox");
+const adminPanel = document.getElementById("adminPanel");
+const shutdownScreen = document.getElementById("shutdownScreen");
+const xpDisplay = document.getElementById("xp");
+const cheatsDiv = document.getElementById("cheats");
+
+function save(){
+    localStorage.setItem("xp", xp);
+    localStorage.setItem("cheats", JSON.stringify(cheats));
+    localStorage.setItem("loggedIn", loggedIn);
+    localStorage.setItem("shutdown", shutdown);
+}
+
+function render(){
+    xpDisplay.textContent = xp;
+    cheatsDiv.innerHTML = "";
+    cheats.forEach(c=>{
+        const div = document.createElement("div");
+        div.className = "cheat-card";
+        div.textContent = c;
+        cheatsDiv.appendChild(div);
+    });
+
+    loginBox.classList.toggle("hidden", loggedIn);
+    adminPanel.classList.toggle("hidden", !loggedIn);
+    shutdownScreen.classList.toggle("hidden", !shutdown);
+}
+
+document.getElementById("loginBtn").onclick = function(){
+    const u = document.getElementById("username").value;
+    const p = document.getElementById("password").value;
+
+    if(u === adminUser && p === adminPass){
+        loggedIn = true;
+        save();
+        render();
+    } else {
+        document.getElementById("message").textContent = "Wrong login";
+    }
+};
+
+document.getElementById("logoutBtn").onclick = function(){
+    loggedIn = false;
+    save();
+    render();
+};
+
+document.getElementById("addCheatBtn").onclick = function(){
+    const cheat = prompt("Enter cheat:");
+    if(cheat){
+        cheats.push(cheat);
+        xp += 10;
+        save();
+        render();
+    }
+};
+
+document.getElementById("shutdownBtn").onclick = function(){
+    shutdown = true;
+    save();
+    render();
+};
+
+document.getElementById("restoreBtn").onclick = function(){
+    shutdown = false;
+    save();
+    render();
+};
+
+render();
+
+})();
+</script>
+
+</body>
+</html>
